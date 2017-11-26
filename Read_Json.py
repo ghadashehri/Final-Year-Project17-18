@@ -1,35 +1,39 @@
 import json
 import numpy as np
-import collections
+#import collections
 from pprint import pprint
 from pathlib import Path
 from sklearn.feature_extraction import DictVectorizer
+#from sklearn.feature_extraction import CountVectorizer
 
-# list of methods called
-Binder_methods = []
-class_ = []
-subClass = []
-files_in_dir = []
 
-directory_in_str= 'Samples/'
 vec = DictVectorizer()
+# list of methods called
+files_in_dir = []
+directory_in_str= 'Samples/'
 
-pathlist= Path(directory_in_str).glob('**/*.json')
-for path in pathlist:
-    files_in_dir.append(str(path))
+def iterateThroughDir(directory):
+    files= []
+    pathlist= Path(directory).glob('**/*.json')
+    for path in pathlist:
+        files.append(str(path))
+    return files
 
-for f in range(0,len(files_in_dir)):
-
-    with open(files_in_dir[f]) as data_file:
+def readJson(f):
+    with open(f) as data_file:
         # takes an actual object as parameter
         data = json.load(data_file)
 
+    # using some of data
+    json_data= data["behaviors"]["dynamic"]["host"]
+    return json_data
 
-        # using some of data
-        json_data= data["behaviors"]["dynamic"]["host"]
+def extractFeature(json_data):
+    Binder_methods = []
+    class_ = []
+    subClass = []
 
     n = len(json_data)
-    
     for i in range(0,n):
         m = len(json_data[i]["low"])
 
@@ -38,13 +42,17 @@ for f in range(0,len(files_in_dir)):
                 Binder_methods.append(json_data[i]["low"][j]["method_name"])
                 class_.append(json_data[i]["class"])
                 subClass.append(json_data[i]["subclass"])
-              
-# Change list to array
-arr = np.array(Binder_methods)
 
-# Using a counter to determine the occurance of each method
-cnt = collections.Counter()
-for word in arr:
-    cnt[word] += 1
-print cnt.values()
+    arr = np.array(Binder_methods)
+    unique, counts = np.unique(arr, return_counts=True)
+    return dict(zip(unique, counts))
 
+
+i=0
+files_in_dir= iterateThroughDir(directory_in_str)
+for f in range(0,len(files_in_dir)):
+    json_data= readJson(files_in_dir[f])
+    data[i] = np.array(extractFeature(json_data))
+    i+=1
+print data
+    
