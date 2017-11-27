@@ -3,11 +3,6 @@ import numpy as np
 import collections
 from pprint import pprint
 from pathlib import Path
-from sklearn.feature_extraction import DictVectorizer
-#from sklearn.feature_extraction import CountVectorizer
-
-
-vec = DictVectorizer()
 
 # Initialising Variabels
 Binder_methods = []
@@ -52,11 +47,15 @@ joined_list= Binder_methods + system_calls
 arr = np.array(joined_list)
 # Counting the number of times each method/syscall is repeated
 unique, counts = np.unique(arr, return_counts=True)
+
+print"\nThe methods Calls in all submited Samples: "
 print dict(zip(unique, counts))
-    
+print "\n"
+
 # additional Counter   
 cnt = collections.Counter()
 for word in arr:
     cnt[word] += 1
+print "Number of calls made: "
 print cnt.values()
 
