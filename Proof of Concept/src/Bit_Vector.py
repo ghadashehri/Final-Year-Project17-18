@@ -82,15 +82,5 @@ for f in range(0,len(files_in_dir)):
     system_calls = []
     print bit_vec
 
+print "\nList of Distinct Methods found: "    
 print dis
-
-
-
-
-
-
-
-
-
-
-
