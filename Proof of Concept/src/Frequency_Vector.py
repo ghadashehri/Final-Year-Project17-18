@@ -1,13 +1,7 @@
 import json
 import numpy as np
-import collections
 from pprint import pprint
 from pathlib import Path
-from sklearn.feature_extraction import DictVectorizer
-#from sklearn.feature_extraction import CountVectorizer
-
-
-vec = DictVectorizer()
 
 
 def distinct_Methods(files):
@@ -41,8 +35,8 @@ def distinct_Methods(files):
 Binder_methods = []
 files_in_dir = []
 system_calls= []
-directory_in_str= 'Samples/ADRD_genome_stimulated'
 frequency = {}
+directory_in_str= 'Samples/ADRD_genome_stimulated'
 
 
 # Adding files in directory to a list
@@ -58,7 +52,6 @@ for f in range(0,len(files_in_dir)):
     with open(files_in_dir[f]) as data_file:
         # takes an actual object as parameter
         data = json.load(data_file)
-
 
     # using some of data
     json_data= data["behaviors"]["dynamic"]["host"]
@@ -76,6 +69,7 @@ for f in range(0,len(files_in_dir)):
         elif(json_data[i]["low"][0]["type"] == 'SYSCALL'):
             for j in range(0,len(json_data[i]["low"])):
                 system_calls.append(json_data[i]["low"][j]['sysname'])
+
     combined = Binder_methods + system_calls
     count = np.zeros(len(dis))
     for i in range(0,len(combined)):
@@ -83,10 +77,12 @@ for f in range(0,len(files_in_dir)):
             if(combined[i] == dis[j]):
                 count[j]+=1
     frequency = {files_in_dir[f]:count}
+    # Reset lists to empty
     Binder_methods = []
     system_calls = []
     print frequency
-    
+
+print "\nList of Distinct Methods found: "    
 print dis
 
 
