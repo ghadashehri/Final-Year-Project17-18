@@ -41,7 +41,7 @@ Binder_methods = []
 files_in_dir = []
 system_calls= []
 frequency = {}
-directory_in_str= '../../../samples/ADRD_genome_stimulated'
+directory_in_str= '/samples/ADRD_genome_stimulated'
 
 
 # Adding files in directory to a list
