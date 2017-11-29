@@ -1,6 +1,10 @@
+'''
+Created on 28 Nov 2017
+
+@author: Ghadah
+'''
 import json
 import numpy as np
-from pprint import pprint
 from pathlib import Path
 
 
@@ -14,29 +18,30 @@ def distinct_Methods(files):
         n = len(json_data)
 
         for i in range(0,n):
-            # retriving the Binder Calls
+            # retrieving the Binder Calls
             value = json_data[i]["low"][0]["type"]
             if( value == 'BINDER' and  json_data[i]["low"][0]["method_name"] not in dis_meth ):
                 dis_meth.append(json_data[i]["low"][0]["method_name"])
 
-            # retriving Intent Calls
+            # retrieving Intent Calls
             elif ( value == 'INTENT' and  json_data[i]["low"][0]["intent"] not in dis_meth):
                 dis_meth.append(json_data[i]["low"][0]["intent"])
 
-            # retriving System Calls
-            elif(value == 'SYSCALL' and  json_data[i]["low"][0]['sysname'] not in dis_meth):
+            # retrieving System Calls
+            elif(value == 'SYSCALL' ):
                 for j in range(0,len(json_data[i]["low"])):
-                    dis_meth.append(json_data[i]["low"][j]['sysname'])
+                    if(json_data[i]["low"][j]['sysname'] not in dis_meth):
+                        dis_meth.append(json_data[i]["low"][j]['sysname'])
     return dis_meth
 
 
 
-# Initialising Variabels
+# Initialising Variables
 Binder_methods = []
 files_in_dir = []
 system_calls= []
 frequency = {}
-directory_in_str= 'Samples/ADRD_genome_stimulated'
+directory_in_str= '../../../samples/ADRD_genome_stimulated'
 
 
 # Adding files in directory to a list
@@ -47,7 +52,7 @@ for path in pathlist:
     dis=distinct_Methods(files_in_dir)
 
 
-# Looping through Samples of each malware family
+# Looping through Samples of each Malware family
 for f in range(0,len(files_in_dir)):
     with open(files_in_dir[f]) as data_file:
         # takes an actual object as parameter
@@ -58,14 +63,14 @@ for f in range(0,len(files_in_dir)):
     n = len(json_data)
 
     for i in range(0,n):
-        # retriving the Binder Calls
+        # retrieving the Binder Calls
         if(json_data[i]["low"][0]["type"] == 'BINDER'):
             Binder_methods.append(json_data[i]["low"][0]["method_name"])
 
-        # retriving Intent Calls
+        # retrieving Intent Calls
         elif ( json_data[i]["low"][0]["type"] == 'INTENT' ):
-             Binder_methods.append(json_data[i]["low"][0]["intent"])
-        # retriving System Calls
+            Binder_methods.append(json_data[i]["low"][0]["intent"])
+        # retrieving System Calls
         elif(json_data[i]["low"][0]["type"] == 'SYSCALL'):
             for j in range(0,len(json_data[i]["low"])):
                 system_calls.append(json_data[i]["low"][j]['sysname'])
@@ -80,10 +85,11 @@ for f in range(0,len(files_in_dir)):
     # Reset lists to empty
     Binder_methods = []
     system_calls = []
-    print frequency
+    print (frequency)
 
-print "\nList of Distinct Methods found: "    
-print dis
+print ("\nList of Distinct Methods found: ")    
+print (dis)
+
 
 
 
