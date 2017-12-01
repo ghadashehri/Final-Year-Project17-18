@@ -4,7 +4,7 @@ Created on 28 Nov 2017
 @author: Ghadah
 
 
-A test case to check the results obtained from ParseJson class are correct
+A test case to check the results obtained from FrequencyVector class are correct
 it checks all methods found in that class.
 '''
 import unittest
