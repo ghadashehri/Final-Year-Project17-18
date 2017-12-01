@@ -14,7 +14,7 @@ class Test_Read_Json(unittest.TestCase):
 
     def test_iterateThroughDir(self):
         files =[] 
-        directory = '../../../samples/'
+        directory = 'samples/'
         pathlist= Path(directory).glob('**/*.json')
         for path in pathlist:
             files.append(str(path))
