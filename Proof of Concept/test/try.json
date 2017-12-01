@@ -1,0 +1,150 @@
+{
+	"behaviors": {
+        "static": {},
+        "dynamic": {
+            "host": [{
+                "tid": 318,
+                "procname": "com.tt.yy",
+                "class": "ACCESS PERSONAL INFO",
+                "subclass": "PHONE",
+                "low": [{
+                    "method_name": "com.android.internal.telephony.IPhoneSubInfo.getDeviceId()()",
+                    "type": "BINDER",
+                    "id": 1431,
+                    "ts": 0
+                }]
+            }, {
+                "tid": 318,
+                "procname": "com.tt.yy",
+                "class": "ACCESS PERSONAL INFO",
+                "subclass": "PHONE",
+                "low": [{
+                    "method_name": "com.android.internal.telephony.IPhoneSubInfo.getSubscriberId()()",
+                    "type": "BINDER",
+                    "id": 1443,
+                    "ts": 0
+                }]
+            }, {
+                "tid": 318,
+                "procname": "com.tt.yy",
+                "class": "FS ACCESS",
+                "low": [{
+                    "sysname": "open",
+                    "blob": "{'flags': 131138, 'mode': 420, 'filename': u'/data/data/com.tt.yy/databases/css_db\\x00'}",
+                    "type": "SYSCALL",
+                    "id": 1476,
+                    "ts": 0
+                }, {
+                    "sysname": "write",
+                    "xref": 1476,
+                    "ts": 0,
+                    "blob": "{'filename': u'/data/data/com.tt.yy/databases/css_db'}",
+                    "type": "SYSCALL",
+                    "id": 1537
+                }, {
+                    "sysname": "write",
+                    "xref": 1476,
+                    "ts": 0,
+                    "blob": "{'filename': u'/data/data/com.tt.yy/databases/css_db'}",
+                    "type": "SYSCALL",
+                    "id": 1539
+                }, {
+                    "sysname": "write",
+                    "xref": 1476,
+                    "ts": 0,
+                    "blob": "{'filename': u'/data/data/com.tt.yy/databases/css_db'}",
+                    "type": "SYSCALL",
+                    "id": 1541
+                }, {
+                    "sysname": "write",
+                    "xref": 1476,
+                    "ts": 0,
+                    "blob": "{'filename': u'/data/data/com.tt.yy/databases/css_db'}",
+                    "type": "SYSCALL",
+                    "id": 1596
+                }, {
+                    "sysname": "write",
+                    "xref": 1476,
+                    "ts": 0,
+                    "blob": "{'filename': u'/data/data/com.tt.yy/databases/css_db'}",
+                    "type": "SYSCALL",
+                    "id": 1598
+                }, {
+                    "sysname": "write",
+                    "xref": 1476,
+                    "ts": 0,
+                    "blob": "{'filename': u'/data/data/com.tt.yy/databases/css_db'}",
+                    "type": "SYSCALL",
+                    "id": 1671
+                }, {
+                    "sysname": "write",
+                    "xref": 1476,
+                    "ts": 0,
+                    "blob": "{'filename': u'/data/data/com.tt.yy/databases/css_db'}",
+                    "type": "SYSCALL",
+                    "id": 1673
+                }, {
+                    "sysname": "write",
+                    "xref": 1476,
+                    "ts": 0,
+                    "blob": "{'filename': u'/data/data/com.tt.yy/databases/css_db'}",
+                    "type": "SYSCALL",
+                    "id": 1675
+                }, {
+                    "sysname": "write",
+                    "xref": 1476,
+                    "ts": 0,
+                    "blob": "{'filename': u'/data/data/com.tt.yy/databases/css_db'}",
+                    "type": "SYSCALL",
+                    "id": 1677
+                }, {
+                    "sysname": "write",
+                    "xref": 1476,
+                    "ts": 0,
+                    "blob": "{'filename': u'/data/data/com.tt.yy/databases/css_db'}",
+                    "type": "SYSCALL",
+                    "id": 1679
+                }]
+            }, {
+                "tid": 325,
+                "procname": "Thread-8",
+                "class": "NETWORK ACCESS",
+                "subclass": "DNS",
+                "low": [{
+                    "sysname": "connect",
+                    "blob": "{'host': '10.0.2.3', 'retval': 0, 'port': 53}",
+                    "type": "SYSCALL",
+                    "id": 2313,
+                    "ts": 0
+                }, {
+                    "sysname": "sendto",
+                    "xref": 2313,
+                    "ts": 0,
+                    "blob": "{'query_data': 'adrd.taxuan.net. 1 1'}",
+                    "type": "SYSCALL",
+                    "id": 2314
+                }]
+            }, {
+                "tid": 318,
+                "procname": "com.tt.yy",
+                "class": "ACCESS PERSONAL INFO",
+                "subclass": "SMS",
+                "low": [{
+                    "method_name": "android.app.IActivityManager.GET_CONTENT_PROVIDER_TRANSACTION()",
+                    "type": "BINDER",
+                    "id": 2786,
+                    "ts": 0
+                }]
+            }]
+        }
+    },
+    "userid": "joystick",
+    "country": "UNAVAILABLE",
+    "date_end": "N/A",
+    "date_start": "N/A",
+    "date_submitted": "2012-11-19 18:47:50",
+    "static": "/copperdroid/reports//ADRD_genome_stimulated/4de0d8997949265a4b5647bb9f9d42926bd88191.apk.log",
+    "submitter_ip": "127.0.0.1",
+    "pcap": "/copperdroid/reports//ADRD_genome_stimulated/4de0d8997949265a4b5647bb9f9d42926bd88191.apk.pcap",
+    "md5": "77b0105632e309b48e66f7cdb4678e02"
+}
