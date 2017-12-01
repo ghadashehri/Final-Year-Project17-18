@@ -15,3 +15,5 @@ Uses the vectors produced at earlier stages, as input and display them in cluste
 # 3- Samples
 Which contains all CopperDroid's Analyised data (dataset in this case).
 Each folder represent a malware family, that contains a number of samples. 
+# 4- Interim Report
+a directory that contains a copy of interim report
