@@ -1,0 +1,55 @@
+'''
+Created on 1 Dec 2017
+
+@author: Ghadah
+
+ A class to experiment with existing implementation of DBSCAN implementation
+ taken from http://scikit-learn.org/stable/auto_examples/cluster/plot_dbscan.html#sphx-glr-auto-examples-cluster-plot-dbscan-py
+'''
+
+from sklearn.cluster import DBSCAN
+from sklearn import metrics
+from sklearn.decomposition import PCA as sklearnPCA
+from matplotlib import pyplot as plt
+from BitVector import getBitVector
+# from FrequencyVector import getFrequencyVector
+import numpy as np
+
+features = []
+# trry = []
+# get extracted features from Bitvector class
+data = getBitVector()
+# data = getFrequencyVector()
+for key in data:
+    element = data.get(key)
+    features.append(element)
+    # print(key)
+#     if 'ADRD' in key:
+#         trry.append(element)
+#     elif 'AnserverBot' in key:
+#         features.append(element)
+
+# represent data as a matrix
+mat = np.matrix(features)
+# print(mat)
+
+# Compute DBSCAN
+model = DBSCAN(eps=1.7, min_samples=15).fit(mat)
+labels = model.labels_
+# print(labels)
+
+
+# Number of clusters in labels, ignoring noise if present.
+n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+# unique_labels = set(model.lab)
+
+for i in range(0, mat.shape[0]):
+    if labels[i] == 0:
+        c1 = plt.scatter(mat[i, 0], mat[i, 1], c='r', marker='+')
+    elif labels[i] == 1:
+        c2 = plt.scatter(mat[i, 0], mat[i, 1], c='g', marker='o')
+    elif labels[i] == -1:
+        c3 = plt.scatter(mat[i, 0], mat[i, 1], c='b', marker='*')
+plt.legend([c1, c2, c3], ['Cluster 1', 'Cluster 2', 'Noise'])
+plt.title('Estimated Number of Clusters: % d' % n_clusters_)
+plt.show()
