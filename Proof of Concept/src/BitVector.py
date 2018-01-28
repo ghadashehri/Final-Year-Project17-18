@@ -1,18 +1,15 @@
 '''
 Created on 28 Nov 2017
-
 @author: Ghadah
-
 This class aim  to Extract features out of a specified directory,in this case,
 a Malware family. By Iterating through samples in each malware family, and
 extracting 'BINDER' SYSCALL' and 'INTENT' Saving those calls to list
 and forming a bit-vector that represents each sample in the directory, it uses
 values 1 if the method is found, and 0 otherwise.
-
 note: value of directory_in_str, represents where the malware family is located
-
 '''
 import json
+import os
 import numpy as np
 from pathlib import Path
 
@@ -21,13 +18,13 @@ Binder_methods = []
 files_in_dir = []
 system_calls = []
 bit_vec = {}
-directory_in_str = '../../samples/ADRD_genome_stimulated'
+directory_in_str = '../../samples'
 
 
 def distinct_Methods(files):
     dis_meth = []
     for f in range(len(files)):
-        with open(files_in_dir[f]) as data_file:
+        with open(files[f]) as data_file:
             # takes an actual object as parameter
             data = json.load(data_file)
         json_data = data["behaviors"]["dynamic"]["host"]
@@ -55,11 +52,17 @@ def distinct_Methods(files):
 
 # returns .json files found in directory
 def iterateThroughDir(directory):
+    families = {}
     files = []
-    pathlist = Path(directory).glob('**/*.json')
-    for path in pathlist:
-        files.append(str(path))
-    return files
+    sub_directories = os.listdir(directory)
+    for dirc in sub_directories:
+        sub = directory + '/' + dirc
+        pathlist = Path(sub).glob('**/*.json')
+        for path in pathlist:
+            files.append(str(path))
+        families.update({dirc: files})
+        files = []
+    return families
 
 
 # returns information extracted from each .json file
@@ -92,7 +95,8 @@ def extractFeature(json_data):
 files_in_dir = iterateThroughDir(directory_in_str)
 
 # list of distinct methods
-dis = distinct_Methods(files_in_dir)
+for key in files_in_dir:
+    dis = distinct_Methods(files_in_dir[key])
 
 for f in range(0, len(files_in_dir)):
     json_data = readJson(files_in_dir[f])
