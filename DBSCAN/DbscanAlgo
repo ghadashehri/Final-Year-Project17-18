@@ -10,46 +10,78 @@ Created on 1 Dec 2017
 from sklearn.cluster import DBSCAN
 from sklearn import metrics
 from sklearn.decomposition import PCA as sklearnPCA
+from sklearn.preprocessing import StandardScaler
+# from FrequencyVector import getFrequencyVector
 from matplotlib import pyplot as plt
 from BitVector import getBitVector
-# from FrequencyVector import getFrequencyVector
 import numpy as np
 
+# Initalise Variables
 features = []
 # trry = []
+
+
 # get extracted features from Bitvector class
 data = getBitVector()
 # data = getFrequencyVector()
+
+# Extract vectors in a list
+i = 0
 for key in data:
+    # dictionary of fileNames & vectors
     element = data.get(key)
-    features.append(element)
-    # print(key)
-#     if 'ADRD' in key:
-#         trry.append(element)
-#     elif 'AnserverBot' in key:
-#         features.append(element)
+
+    for key2 in element:
+        val = element.get(key2)
+        # i value determine a label for each array @ 18th position
+        val = np.insert(val, len(val), i)
+        features.append(val)
+    i = +1
+
+print(features)
 
 # represent data as a matrix
 mat = np.matrix(features)
+
+# Normalise Data
+stscaler = StandardScaler().fit(mat)
+matrix = stscaler.transform(mat)
 # print(mat)
 
 # Compute DBSCAN
-model = DBSCAN(eps=1.7, min_samples=15).fit(mat)
+model = DBSCAN(eps=1.7, min_samples=15).fit(matrix)
+model2 = DBSCAN(eps=1, min_samples=12).fit_predict(matrix, y=None)
+# print(model2)
 labels = model.labels_
-# print(labels)
+print(labels)
 
 
 # Number of clusters in labels, ignoring noise if present.
 n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
 # unique_labels = set(model.lab)
+core = np.zeros_like(model.labels_, dtype=bool)
+core[model.core_sample_indices_] = True
+#
+# colours = [plt.cm.Spectral(each)
+# for each in np.linspace(0, 1, len(set(labels)))]
+#
+# for label, colour in zip(set(labels), colours):
+#     if label == -1:
+#         colour = [0, 0, 0, 1]
+#     classMask = (labels == label)
+#     xy = mat[classMask & core]
+#     plt.plot(xy[:, 0], xy[:, 1], 'o')
+#
+#     xy = mat[classMask & ~core]
+#     plt.plot(xy[:, 0], xy[:, 1], '*')
 
-for i in range(0, mat.shape[0]):
+for i in range(0, matrix.shape[1]):
     if labels[i] == 0:
-        c1 = plt.scatter(mat[i, 0], mat[i, 1], c='r', marker='+')
+        c1 = plt.scatter(matrix[i, 0], matrix[i, 1], c='r', marker='+')
     elif labels[i] == 1:
-        c2 = plt.scatter(mat[i, 0], mat[i, 1], c='g', marker='o')
+        c2 = plt.scatter(matrix[i, 0], matrix[i, 1], c='g', marker='o')
     elif labels[i] == -1:
-        c3 = plt.scatter(mat[i, 0], mat[i, 1], c='b', marker='*')
+        c3 = plt.scatter(matrix[i, 0], matrix[i, 1], c='b', marker='*')
 plt.legend([c1, c2, c3], ['Cluster 1', 'Cluster 2', 'Noise'])
 plt.title('Estimated Number of Clusters: % d' % n_clusters_)
 plt.show()
