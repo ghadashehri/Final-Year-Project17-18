@@ -94,10 +94,10 @@ def extractFeature(json_data):
 
 # list Files in directory
 files_in_dir = iterateThroughDir(directory_in_str)
+result = files_in_dir.copy()
 
-# list of distinct methods
-result = {}
 for key in files_in_dir:
+    # list of distinct methods
     dis = distinct_Methods(files_in_dir[key])
 
     for f in range(0, len(files_in_dir[key])):
@@ -115,15 +115,8 @@ for key in files_in_dir:
         # Reset lists to empty
         Binder_methods = []
         system_calls = []
-
-#print (bit_vec)
-for key in bit_vec:
-    lis = list(files_in_dir.keys())
-    for item in lis:
-        if item in key:
-            word = item
-            result.update({word: {key: bit_vec[key]}})
-            word = ''
+    result[key] = bit_vec
+    bit_vec = {}
 
 print(result)
 print ("\nList of Distinct Methods found: ")
@@ -132,4 +125,4 @@ print (dis)
 
 # to access results from other classes
 def getBitVector():
-    return bit_vec
+    return result
