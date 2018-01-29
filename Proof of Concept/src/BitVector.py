@@ -13,6 +13,7 @@ import os
 import numpy as np
 from pathlib import Path
 
+
 # Initialising Variables
 Binder_methods = []
 files_in_dir = []
@@ -35,7 +36,7 @@ def distinct_Methods(files):
             value = json_data[i]["low"][0]["type"]
 
             # check if value equal to binder and not in the list
-            if(value == 'BINDER' and json_data[i]["low"][0]["method_name"] not in dis_meth):
+            if(value == 'BINDER' and json_data[i]["low"][0]["method_name"]not in dis_meth):
                 dis_meth.append(json_data[i]["low"][0]["method_name"])
 
             # check if value equal to intent and not in the list
@@ -95,26 +96,36 @@ def extractFeature(json_data):
 files_in_dir = iterateThroughDir(directory_in_str)
 
 # list of distinct methods
+result = {}
 for key in files_in_dir:
     dis = distinct_Methods(files_in_dir[key])
 
-for f in range(0, len(files_in_dir)):
-    json_data = readJson(files_in_dir[f])
-    extractFeature(json_data)
-    combined = Binder_methods + system_calls
-    # array of zeros to determine size of vector
-    vec = np.zeros(len(dis))
-    for i in range(0, len(combined)):
-        for j in range(0, len(dis)):
-            if(combined[i] == dis[j]):
-                vec[j] = 1
-    # Add results to dictionary
-    bit_vec.update({files_in_dir[f]: vec})
-    # Reset lists to empty
-    Binder_methods = []
-    system_calls = []
-print (bit_vec)
+    for f in range(0, len(files_in_dir[key])):
+        json_data = readJson(files_in_dir[key][f])
+        extractFeature(json_data)
+        combined = Binder_methods + system_calls
+        # array of zeros to determine size of vector
+        vec = np.zeros(len(dis))
+        for i in range(0, len(combined)):
+            for j in range(0, len(dis)):
+                if(combined[i] == dis[j]):
+                    vec[j] = 1
+        # Add results to dictionary
+        bit_vec.update({files_in_dir[key][f]: vec})
+        # Reset lists to empty
+        Binder_methods = []
+        system_calls = []
 
+#print (bit_vec)
+for key in bit_vec:
+    lis = list(files_in_dir.keys())
+    for item in lis:
+        if item in key:
+            word = item
+            result.update({word: {key: bit_vec[key]}})
+            word = ''
+
+print(result)
 print ("\nList of Distinct Methods found: ")
 print (dis)
 
