@@ -22,32 +22,33 @@ bit_vec = {}
 directory_in_str = '../../samples'
 
 
-def distinct_Methods(files):
+def distinct_Methods(dircFiles):
     dis_meth = []
-    for f in range(len(files)):
-        with open(files[f]) as data_file:
-            # takes an actual object as parameter
-            data = json.load(data_file)
-        json_data = data["behaviors"]["dynamic"]["host"]
-        n = len(json_data)
+    for key in dircFiles:
+        for f in range(len(dircFiles[key])):
+            with open(dircFiles[key][f]) as data_file:
+                # takes an actual object as parameter
+                data = json.load(data_file)
+            json_data = data["behaviors"]["dynamic"]["host"]
+            n = len(json_data)
 
-        for i in range(0, n):
+            for i in range(0, n):
 
-            value = json_data[i]["low"][0]["type"]
+                value = json_data[i]["low"][0]["type"]
 
-            # check if value equal to binder and not in the list
-            if(value == 'BINDER' and json_data[i]["low"][0]["method_name"]not in dis_meth):
-                dis_meth.append(json_data[i]["low"][0]["method_name"])
+                # check if value equal to binder and not in the list
+                if(value == 'BINDER' and json_data[i]["low"][0]["method_name"]not in dis_meth):
+                    dis_meth.append(json_data[i]["low"][0]["method_name"])
 
-            # check if value equal to intent and not in the list
-            elif (value == 'INTENT' and json_data[i]["low"][0]["intent"] not in dis_meth):
-                dis_meth.append(json_data[i]["low"][0]["intent"])
+                # check if value equal to intent and not in the list
+                elif (value == 'INTENT' and json_data[i]["low"][0]["intent"] not in dis_meth):
+                    dis_meth.append(json_data[i]["low"][0]["intent"])
 
-            # check if value equal to syscall and not in the list
-            elif(value == 'SYSCALL'):
-                for j in range(0, len(json_data[i]["low"])):
-                    if(json_data[i]["low"][j]['sysname'] not in dis_meth):
-                        dis_meth.append(json_data[i]["low"][j]['sysname'])
+                # check if value equal to syscall and not in the list
+                elif(value == 'SYSCALL'):
+                    for j in range(0, len(json_data[i]["low"])):
+                        if(json_data[i]["low"][j]['sysname'] not in dis_meth):
+                            dis_meth.append(json_data[i]["low"][j]['sysname'])
     return dis_meth
 
 
@@ -96,10 +97,9 @@ def extractFeature(json_data):
 files_in_dir = iterateThroughDir(directory_in_str)
 result = files_in_dir.copy()
 
+# Get the names of different methods in all directories
+dis = distinct_Methods(files_in_dir)
 for key in files_in_dir:
-    # list of distinct methods
-    dis = distinct_Methods(files_in_dir[key])
-
     for f in range(0, len(files_in_dir[key])):
         json_data = readJson(files_in_dir[key][f])
         extractFeature(json_data)
