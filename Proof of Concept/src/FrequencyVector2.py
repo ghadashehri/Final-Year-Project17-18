@@ -4,10 +4,12 @@ Created on 28 Nov 2017
 This class aim  to Extract features out of a specified directory,in this case,
 a Malware family. By Iterating through samples in each malware family, and
 extracting 'BINDER' SYSCALL' and 'INTENT' Saving those calls to list
-and forming a bit-vector that represents each sample in the directory, it uses
-values 1 if the method is found, and 0 otherwise.
+and forming a frequency-vector that represents each sample in the directory,
+it stores the number of times a method occured in a certain sample.
+
 note: value of directory_in_str, represents where the malware family is located
 '''
+
 import json
 import os
 import numpy as np
@@ -18,7 +20,7 @@ from pathlib import Path
 Binder_methods = []
 files_in_dir = []
 system_calls = []
-bit_vec = {}
+freq_vec = {}
 directory_in_str = '../../samples'
 
 
@@ -99,30 +101,35 @@ result = files_in_dir.copy()
 
 # Get the names of different methods in all directories
 dis = distinct_Methods(files_in_dir)
+
 for key in files_in_dir:
     for f in range(0, len(files_in_dir[key])):
         json_data = readJson(files_in_dir[key][f])
         extractFeature(json_data)
         combined = Binder_methods + system_calls
         # array of zeros to determine size of vector
-        vec = np.zeros(len(dis))
+        count = np.zeros(len(dis))
         for i in range(0, len(combined)):
             for j in range(0, len(dis)):
                 if(combined[i] == dis[j]):
-                    vec[j] = 1
+                    count[j] += 1
+        # Used from https://stackoverflow.com/questions/30024342/converting-dataframe-to-numpy-array-causes-all-numbers-to-be-printed-in-scientif?rq=1
+        np.set_printoptions(formatter={'float': "{:6.5g}".format})
+
         # Add results to dictionary
-        bit_vec.update({files_in_dir[key][f]: vec})
+        freq_vec.update({files_in_dir[key][f]: count})
+
         # Reset lists to empty
         Binder_methods = []
         system_calls = []
-    result[key] = bit_vec
-    bit_vec = {}
+    result[key] = freq_vec
+    freq_vec = {}
 
-print(result)
+print(result.get('CoinPirate_genome_stimulated'))
 print ("\nList of Distinct Methods found: ")
 print (dis)
 
 
 # to access results from other classes
-def getBitVector():
+def getFreqVec():
     return result
