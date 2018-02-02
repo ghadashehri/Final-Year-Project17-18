@@ -8,23 +8,21 @@ Created on 1 Dec 2017
 '''
 
 from sklearn.cluster import DBSCAN
-import matplotlib.patches as mpatches
-#from sklearn import metrics
-from sklearn.preprocessing import StandardScaler
-from FrequencyVector import getFrequencyVector
 from matplotlib import pyplot as plt
+from sklearn.preprocessing import StandardScaler
+#from FrequencyVector import getFrequencyVector
 #from BitVector import getBitVector
-#from notInc import Bitv
+from FrequencyVector2 import getFreqVec
 import numpy as np
 
 # Initialise Variables
 features_w_labels = []
 features = []
 
-# Get extracted features from Bitvector class
-#data = Bitv.getFreqVec()
+# Get features from Feature Extraction classes
+data = getFreqVec()
 #data = getBitVector()
-data = getFrequencyVector()
+#data = getFrequencyVector()
 
 
 # Extract vectors in a list
@@ -38,6 +36,8 @@ for key in data:
         features.append(val)
         # i value determine a label for each array @ the last position
         val = np.insert(val, len(val), i)
+
+        # only used for testing
         features_w_labels.append(val)
     i = i + 1
 
@@ -52,15 +52,13 @@ matrix = std_scale.transform(mat)
 
 
 # Compute DBSCAN
-dbscn = DBSCAN(eps=.15, min_samples=8).fit(matrix)
+dbscn = DBSCAN(eps=1.9, min_samples=2).fit(matrix)
 # model2 = DBSCAN(eps=1, min_samples=12).fit_predict(matrix, y=None)
+
 labels = dbscn.labels_
 core_samples = np.zeros_like(labels, dtype=bool)
 core_samples[dbscn.core_sample_indices_] = True
 
-
-print(labels)
-print('\n\n')
 
 # Check Accuracy of Algorithm
 def get_accuracy(labels):
@@ -76,6 +74,7 @@ def get_accuracy(labels):
 accuracy = get_accuracy(labels)
 print(accuracy)
 
+
 # PLOTTTINNNNGGGG DDDDAAATTTTAAAAA #####+++++++++++++++++###############
 
 # Display sample data
@@ -86,6 +85,7 @@ plt.ylabel("Y-Axis")
 plt.title("Android Sample Data ")
 plt.show()
 
+# Number of clusters in labels
 n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
 unique_labels = np.unique(labels)
 colors = plt.cm.Spectral(np.linspace(0, 1, len(unique_labels)))
@@ -109,4 +109,3 @@ plt.xlabel("X (scaled)")
 plt.ylabel("Y (scaled)")
 
 plt.show()
-
