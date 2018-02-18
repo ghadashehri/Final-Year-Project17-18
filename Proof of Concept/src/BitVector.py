@@ -1,6 +1,8 @@
 '''
-Created on 28 Nov 2017
+Created on 18 Feb 2018
+
 @author: Ghadah
+
 This class aim  to Extract features out of a specified directory,in this case,
 a Malware family. By Iterating through samples in each malware family, and
 extracting 'BINDER' SYSCALL' and 'INTENT' Saving those calls to list
@@ -18,7 +20,7 @@ from pathlib import Path
 Binder_methods = []
 files_in_dir = []
 system_calls = []
-bit_vec = {}
+freq_vec = {}
 directory_in_str = '../../samples'
 
 
@@ -27,6 +29,7 @@ def distinct_Methods(dircFiles):
     for key in dircFiles:
         for f in range(len(dircFiles[key])):
             with open(dircFiles[key][f]) as data_file:
+
                 # takes an actual object as parameter
                 data = json.load(data_file)
             json_data = data["behaviors"]["dynamic"]["host"]
@@ -34,22 +37,34 @@ def distinct_Methods(dircFiles):
 
             for i in range(0, n):
 
-                value = json_data[i]["low"][0]["type"]
+                class_value = json_data[i]["class"]
+                binder_value = json_data[i]["low"][0]["type"]
 
+                # Add values of system calls
+                dis_meth.append(class_value)
+
+                if('subclass' in json_data[i].keys()):
+                    subclass_value = json_data[i]["subclass"]
+                    dis_meth.append(subclass_value)
+
+                # Add values of Binder transactions
                 # check if value equal to binder and not in the list
-                if(value == 'BINDER' and json_data[i]["low"][0]["method_name"]not in dis_meth):
+                if(binder_value == 'BINDER'):
                     dis_meth.append(json_data[i]["low"][0]["method_name"])
 
                 # check if value equal to intent and not in the list
-                elif (value == 'INTENT' and json_data[i]["low"][0]["intent"] not in dis_meth):
+                if (binder_value == 'INTENT'):
                     dis_meth.append(json_data[i]["low"][0]["intent"])
 
                 # check if value equal to syscall and not in the list
-                elif(value == 'SYSCALL'):
+                if(binder_value == 'SYSCALL'):
                     for j in range(0, len(json_data[i]["low"])):
-                        if(json_data[i]["low"][j]['sysname'] not in dis_meth):
+                        if(json_data[i]["low"][j]['sysname']):
+                            # print(json_data[i]["low"][j]['sysname'])
                             dis_meth.append(json_data[i]["low"][j]['sysname'])
-    return dis_meth
+
+    unique_list = list(set(dis_meth))
+    return unique_list
 
 
 # returns .json files found in directory
@@ -82,6 +97,9 @@ def readJson(f):
 def extractFeature(json_data):
     n = len(json_data)
     for i in range(0, n):
+        system_calls.append(json_data[i]["class"])
+        if('subclass' in json_data[i].keys()):
+            system_calls.append(json_data[i]["subclass"])
         if(json_data[i]["low"][0]["type"] == 'BINDER'):
             Binder_methods.append(json_data[i]["low"][0]["method_name"])
         # retrieving Intent Calls
@@ -90,7 +108,7 @@ def extractFeature(json_data):
         # retrieving System Calls
         elif(json_data[i]["low"][0]["type"] == 'SYSCALL'):
             for j in range(0, len(json_data[i]["low"])):
-                system_calls.append(json_data[i]["low"][j]['sysname'])
+                Binder_methods.append(json_data[i]["low"][j]['sysname'])
 
 
 # list Files in directory
@@ -99,29 +117,33 @@ result = files_in_dir.copy()
 
 # Get the names of different methods in all directories
 dis = distinct_Methods(files_in_dir)
+
 for key in files_in_dir:
     for f in range(0, len(files_in_dir[key])):
         json_data = readJson(files_in_dir[key][f])
         extractFeature(json_data)
         combined = Binder_methods + system_calls
         # array of zeros to determine size of vector
-        vec = np.zeros(len(dis))
+        count = np.zeros(len(dis))
         for i in range(0, len(combined)):
             for j in range(0, len(dis)):
                 if(combined[i] == dis[j]):
-                    vec[j] = 1
+                    count[j] = 1
+        # Used from https://stackoverflow.com/questions/30024342/converting-dataframe-to-numpy-array-causes-all-numbers-to-be-printed-in-scientif?rq=1
+        np.set_printoptions(formatter={'float': "{:6.5g}".format})
+
         # Add results to dictionary
-        bit_vec.update({files_in_dir[key][f]: vec})
+        freq_vec.update({files_in_dir[key][f]: count})
+
         # Reset lists to empty
         Binder_methods = []
         system_calls = []
-    result[key] = bit_vec
-    bit_vec = {}
+    result[key] = freq_vec
+    freq_vec = {}
 
 print(result)
 print ("\nList of Distinct Methods found: ")
 print (dis)
-
 
 # to access results from other classes
 def getBitVector():

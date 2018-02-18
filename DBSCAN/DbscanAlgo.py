@@ -64,11 +64,11 @@ core_samples[dbscn.core_sample_indices_] = True
 def get_accuracy(labels):
     acc = 0
     matrix_w_labels = np.matrix(features_w_labels)
-    last_pos = len(matrix[0])
+    last_pos = len(matrix_w_labels[0])
     for i in range(0, len(labels)):
         if matrix_w_labels[i].item(last_pos) == labels[i]:
             acc = acc + 1
-    return("DBSCAN ALGORITHM ACCURACY ", (acc/matrix.shape[0])*100)
+    return("DBSCAN ALGORITHM ACCURACY ", (acc/matrix_w_labels.shape[0])*100)
 
 
 accuracy = get_accuracy(labels)
