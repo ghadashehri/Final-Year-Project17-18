@@ -6,18 +6,28 @@ Created on 13 Jan 2018
 from sklearn.decomposition import PCA as sklearnPCA
 from sklearn.preprocessing import StandardScaler
 from matplotlib import pyplot as plt
-from FrequencyVector2 import getFreqVec
+from FrequencyVector3 import getFreqVec as frecVec
 import numpy as np
-from cProfile import label
 from matplotlib.pyplot import axis
 
+
+def returnPCA():
+    return Y_sklearn
+
+
+def returnLabels():
+    return y
+
+
+# Initialise Variables
 features = []
 labels = []
 y = []
-data = getFreqVec()
+data = frecVec()
+
 
 # Extract vectors in a list
-i = 0
+i = 1
 for key in data:
     # dictionary of fileNames & vectors
     element = data.get(key)
@@ -31,9 +41,8 @@ for key in data:
     i = i + 1
 
 # Represent data as a matrix
-
 x = np.matrix(features)
-# y = x[:, len(x[0])]
+
 
 # Standardise Data
 std_scale = StandardScaler().fit(x)
@@ -44,27 +53,19 @@ std_matrix = std_scale.transform(x)
 sklearn_pca = sklearnPCA(n_components=2)
 Y_sklearn = sklearn_pca.fit_transform(std_matrix)
 
-
 print(Y_sklearn)
-
 
 with plt.style.context('seaborn-whitegrid'):
     plt.figure(figsize=(6, 4))
-    for lab, col in zip((1, 2),
-                        ('blue', 'green')):
 
-        plt.scatter(Y_sklearn[0:20, 0],
-                    Y_sklearn[20:40, 1],
-                    label=lab,
-                    c=col)
+    plt.scatter(Y_sklearn[:, 0],
+                Y_sklearn[:, 1],
+                c='black',
+                alpha=0.5,
+                )
     plt.xlabel('Principal Component 1')
     plt.ylabel('Principal Component 2')
-    plt.legend(loc='lower center')
+    plt.legend(loc=0)
     plt.tight_layout()
     plt.show()
-
-
-def returnPCA():
-    return Y_sklearn
-
 
