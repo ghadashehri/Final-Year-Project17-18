@@ -15,7 +15,7 @@ def returnPCA():
 
 
 def returnLabels():
-    return y
+    return feat_labels
 
 
 # Initialise Variables
