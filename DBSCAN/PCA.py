@@ -6,7 +6,7 @@ Created on 13 Jan 2018
 from sklearn.decomposition import PCA as sklearnPCA
 from sklearn.preprocessing import StandardScaler
 from matplotlib import pyplot as plt
-from FrequencyVector3 import getFreqVec as frecVec
+from FrequencyVector2 import getFreqVec as frecVec
 import numpy as np
 
 
