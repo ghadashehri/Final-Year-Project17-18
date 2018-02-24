@@ -10,7 +10,7 @@ from DBSCAN import PCA as pca
 
 # Represent data as a matrix
 X = pca.returnPCA()
-
+X = X[:, 0:2]
 
 # Compute value of neighbours
 n = (2 * X.shape[1]) - 1
