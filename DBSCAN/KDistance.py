@@ -6,12 +6,12 @@ Created on 13 Feb 2018
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 import numpy as np
-from FrequencyVector2 import getFreqVec
+import FrequencyVector3 as freqVec
 from matplotlib import pyplot as plt
 
 # Initialise variables
 features = []
-data = getFreqVec()
+data = freqVec.getFreqVec()
 
 # Extract vectors in a list
 for key in data:
@@ -38,21 +38,21 @@ n = (2 * X.shape[1]) - 1
 nbrs = NearestNeighbors(n_neighbors=n, algorithm='ball_tree').fit(std_X)
 distances, indices = nbrs.kneighbors(std_X)
 
-distances.sort(0)
-desc_distances = distances[::-1]
-
-# for item in desc_distances:
-# print(item)
-# print(nbrs.kneighbors_graph(X).toarray())
-
-
 # Plot the KNN distance Graph
-for i in range(0, len(desc_distances)):
-    # plt.scatter(i, desc_distances[i][n-1])
-    plt.plot(desc_distances[i][n-1], i, 'o', 'blue',  alpha=0.5, ms=6)
+desc_distances = sorted(distances[:,n-1], reverse=True)
+plt.plot(list(range(0,len(desc_distances))), desc_distances)
 
-plt.suptitle("K-distance graph")
+
+# distances.sort(0)
+# desc_distances = distances[::-1]
+
+# for i in range(0, len(desc_distances)):
+# plt.scatter(i, desc_distances[i][n-1])
+# plt.plot( desc_distances[i][n-1],i, 'o','blue',  alpha=0.5, ms=6)
+
+plt.title("K-distance graph")
 plt.xlabel("Points in Descending Order (Eps value)")
 plt.ylabel(" KNN distance")
 plt.legend()
+plt.tight_layout()
 plt.show()
