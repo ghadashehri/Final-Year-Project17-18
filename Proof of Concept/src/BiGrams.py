@@ -10,11 +10,10 @@ from pathlib import Path
 
 
 # Initialising Variables
-Binder_methods = []
 files_in_dir = []
 system_calls = []
 freq_vec = {}
-directory_in_str = '../../../samples'
+directory_in_str = '../../samples'
 
 
 def distinct_Methods(dircFiles):
@@ -57,7 +56,6 @@ def distinct_Methods(dircFiles):
                             dis_meth.append(json_data[i]["low"][j]['sysname'])
 
     unique_list = list(set(dis_meth))
-
     dis_bi = get_BiGram(unique_list)
 
     return unique_list + dis_bi
@@ -97,14 +95,14 @@ def extractFeature(json_data):
         if('subclass' in json_data[i].keys()):
             system_calls.append(json_data[i]["subclass"])
         if(json_data[i]["low"][0]["type"] == 'BINDER'):
-            Binder_methods.append(json_data[i]["low"][0]["method_name"])
+            system_calls.append(json_data[i]["low"][0]["method_name"])
         # retrieving Intent Calls
         elif (json_data[i]["low"][0]["type"] == 'INTENT'):
-            Binder_methods.append(json_data[i]["low"][0]["intent"])
+            system_calls.append(json_data[i]["low"][0]["intent"])
         # retrieving System Calls
         elif(json_data[i]["low"][0]["type"] == 'SYSCALL'):
             for j in range(0, len(json_data[i]["low"])):
-                Binder_methods.append(json_data[i]["low"][j]['sysname'])
+                system_calls.append(json_data[i]["low"][j]['sysname'])
 
 
 # Returns a 2-gram vector
@@ -131,7 +129,7 @@ for key in files_in_dir:
 
         json_data = readJson(files_in_dir[key][f])
         extractFeature(json_data)
-        combined = Binder_methods + system_calls
+        combined = system_calls
         bi_gram = get_BiGram(combined)
 
         all_values = combined + bi_gram
@@ -148,14 +146,13 @@ for key in files_in_dir:
         freq_vec.update({files_in_dir[key][f]: count})
 
         # Reset lists to empty
-        Binder_methods = []
         system_calls = []
     result[key] = freq_vec
     freq_vec = {}
 
 print(result)
 print ("\nList of Distinct Methods found: ")
-print (len(dis))
+print (dis)
 
 
 # to access results from other classes
