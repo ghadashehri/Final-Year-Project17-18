@@ -156,5 +156,5 @@ print (dis)
 
 
 # to access results from other classes
-def getFreqVec():
+def getBiGramVec():
     return result
