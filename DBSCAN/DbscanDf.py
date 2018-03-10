@@ -12,6 +12,8 @@ from sklearn.preprocessing import StandardScaler
 # from BitVector import getBitVector
 from BiGrams import getBiGramVec
 from sklearn import metrics
+from sklearn.metrics import accuracy_score, f1_score, precision_score
+from sklearn.metrics import recall_score, confusion_matrix
 import pandas as pd
 import time
 from sklearn.preprocessing.label import LabelEncoder
@@ -40,15 +42,15 @@ for key in data:
 matrix = np.matrix(features)
 
 # Standardise Data
-std_scale = StandardScaler().fit_transform(matrix)
-#std_matrix = std_scale.transform(matrix)
-matrix = std_scale
+std_scale = StandardScaler().fit(matrix)
+std_matrix = std_scale.transform(matrix)
+matrix = std_matrix
 
 # Convert matrix to data frame
 dataframe = pd.DataFrame(matrix)
 y = encod.fit_transform(labels_list)
 dataframe['labels'] = y
-#print(dataframe)
+
 
 # Compute time
 start_time = time.time()
@@ -58,14 +60,13 @@ Y = dataframe['labels']
 
 # Estimate the value of MinPts as double number of dimensions ln(1230)= 7.5
 minPts = len(X.columns)/2
-#print(minPts)
 
 
 # Compute DBSCAN
 dbscn = DBSCAN(eps=.61, min_samples=20).fit(X)
 
 labels = dbscn.labels_
-#print(labels)
+# print(labels)
 
 components = dbscn.components_
 core_samples = np.zeros_like(labels, dtype=bool)
@@ -99,21 +100,24 @@ def get_accuracy(labels):
     return("DBSCAN ALGORITHM ACCURACY ", (acc/matrix.shape[0])*100)
 
 
-accuracy = get_accuracy(labels)
-print('\n\n')
-print(accuracy)
-
+# accuracy = get_accuracy(labels)
 message = 'Clustered {:,} points to {:,} clusters, for {:.1f}% compression in {:,.2f} seconds'
+print('\n\n')
+# print(accuracy)
+
 print(message.format(len(X.index), n_clusters_,
                      100*(1 - float(n_clusters_) / len(X.index)),
                      time.time()-start_time))
 print('Silhouette coefficient: {:0.03f}'.format(metrics.silhouette_score(
     X, labels)))
+
 print("Adjusted Rand Index: %0.3f"
       % metrics.adjusted_rand_score(Y, labels))
-print("Homogeneity: %0.3f" % metrics.homogeneity_score(Y, labels))
 
+# print("Homogeneity: %0.3f" % metrics.homogeneity_score(labels_true, labels))
 
-
-
-
+print('Accuracy:', accuracy_score(Y, labels))
+print('F-Measure: ', f1_score(Y, labels))
+print('Precision: ', precision_score(Y, labels))
+print('Recall: ', recall_score(Y, labels))
+print ('\n Confusion Matrix:\n', confusion_matrix(Y, labels))
