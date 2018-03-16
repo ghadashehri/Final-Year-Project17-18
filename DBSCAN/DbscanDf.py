@@ -8,7 +8,6 @@ import numpy as np
 from sklearn.cluster import DBSCAN
 from matplotlib import pyplot as plt
 from sklearn.preprocessing import StandardScaler
-# from FrequencyVector import getFrequencyVector
 # from BitVector import getBitVector
 from BiGrams import getBiGramVec
 from sklearn import metrics
@@ -42,9 +41,9 @@ for key in data:
 matrix = np.matrix(features)
 
 # Standardise Data
-std_scale = StandardScaler().fit(matrix)
-std_matrix = std_scale.transform(matrix)
-matrix = std_matrix
+std_scale = StandardScaler().fit_transform(matrix)
+#std_matrix = std_scale.transform(matrix)
+matrix = std_scale
 
 # Convert matrix to data frame
 dataframe = pd.DataFrame(matrix)
@@ -59,18 +58,16 @@ X = dataframe.drop('labels', axis=1)
 Y = dataframe['labels']
 
 # Estimate the value of MinPts as double number of dimensions ln(1230)= 7.5
-minPts = len(X.columns)/2
+minPts = len(X.columns) * 2
 
 
 # Compute DBSCAN
-dbscn = DBSCAN(eps=.61, min_samples=20).fit(X)
-
+dbscn = DBSCAN(eps=19, min_samples=10).fit(X)
 labels = dbscn.labels_
-# print(labels)
 
-components = dbscn.components_
 core_samples = np.zeros_like(labels, dtype=bool)
 core_samples[dbscn.core_sample_indices_] = True
+
 X['clusterID'] = labels
 X['labels'] = list(y)
 
@@ -85,9 +82,6 @@ print('noise ', noise)
 # Number of clusters in labels
 n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
 unique_labels = np.unique(labels)
-
-print(X)
-
 
 # Check Accuracy of Algorithm
 def get_accuracy(labels):
@@ -116,8 +110,10 @@ print("Adjusted Rand Index: %0.3f"
 
 # print("Homogeneity: %0.3f" % metrics.homogeneity_score(labels_true, labels))
 
-print('Accuracy:', accuracy_score(Y, labels))
-print('F-Measure: ', f1_score(Y, labels))
-print('Precision: ', precision_score(Y, labels))
-print('Recall: ', recall_score(Y, labels))
-print ('\n Confusion Matrix:\n', confusion_matrix(Y, labels))
+# print('Accuracy:', accuracy_score(Y, labels))
+# #print('F-Measure: ', f1_score(Y, labels))
+# print('Precision: ', precision_score(Y, labels))
+# print('Recall: ', recall_score(Y, labels))
+# f_Score = 2 * ((precision_score(Y, labels) * recall_score(Y, labels) /
+#                 (precision_score(Y, labels) + recall_score(Y, labels))))
+# print ('\n Confusion Matrix:\n', confusion_matrix(Y, labels))
