@@ -6,14 +6,16 @@ Created on 8 Mar 2018
 import json
 import os
 import numpy as np
+import time
 from pathlib import Path
+
 
 
 # Initialising Variables
 files_in_dir = []
 system_calls = []
 freq_vec = {}
-directory_in_str = '../../samples'
+directory_in_str = '../../../samples'
 
 
 def distinct_Methods(dircFiles):
@@ -56,7 +58,7 @@ def distinct_Methods(dircFiles):
                             dis_meth.append(json_data[i]["low"][j]['sysname'])
 
     unique_list = list(set(dis_meth))
-    dis_bi = get_BiGram(unique_list)
+    dis_bi = list(set(get_BiGram(dis_meth)))
 
     return unique_list + dis_bi
 
@@ -72,6 +74,7 @@ def iterateThroughDir(directory):
         for path in pathlist:
             files.append(str(path))
         families.update({dirc: files})
+
         files = []
     return families
 
@@ -113,9 +116,11 @@ def get_BiGram(methods):
         j = i+1
         biGram.append(methods[i] + ' ' + methods[j])
 
-    # print(biGram)
     return biGram
 
+
+# Compute the required time
+start = time.time()
 
 # list Files in directory
 files_in_dir = iterateThroughDir(directory_in_str)
@@ -142,8 +147,11 @@ for key in files_in_dir:
         # Used from https://stackoverflow.com/questions/30024342/converting-dataframe-to-numpy-array-causes-all-numbers-to-be-printed-in-scientif?rq=1
         np.set_printoptions(formatter={'float': "{:6.5g}".format})
 
-        # Add results to dictionary
-        freq_vec.update({files_in_dir[key][f]: count})
+        # filtering produced feature vectors
+        all_zeros = not np.any(count)
+        if not all_zeros:
+            # Add results to dictionary
+            freq_vec.update({files_in_dir[key][f]: count})
 
         # Reset lists to empty
         system_calls = []
@@ -152,9 +160,13 @@ for key in files_in_dir:
 
 print(result)
 print ("\nList of Distinct Methods found: ")
-print (dis)
+print (len(dis))
+
+print(time.time() - start)
 
 
-# to access results from other classes
+# to access results from other classes + filtering
 def getBiGramVec():
-    return result
+    filtered_res = result.copy()
+    filtered_res = dict([(k, v) for k, v in filtered_res.items() if len(v) > 6])
+    return filtered_res
