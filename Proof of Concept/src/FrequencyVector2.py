@@ -12,6 +12,7 @@ note: value of directory_in_str, represents where the malware family is located
 '''
 import json
 import os
+import time
 import numpy as np
 from pathlib import Path
 
@@ -21,7 +22,7 @@ Binder_methods = []
 files_in_dir = []
 system_calls = []
 freq_vec = {}
-directory_in_str = '../../samples'
+directory_in_str = '../../../samples'
 
 
 def distinct_Methods(dircFiles):
@@ -111,6 +112,9 @@ def extractFeature(json_data):
                 Binder_methods.append(json_data[i]["low"][j]['sysname'])
 
 
+# Compute the time required
+start = time.time()
+
 # list Files in directory
 files_in_dir = iterateThroughDir(directory_in_str)
 result = files_in_dir.copy()
@@ -131,9 +135,11 @@ for key in files_in_dir:
                     count[j] += 1
         # Used from https://stackoverflow.com/questions/30024342/converting-dataframe-to-numpy-array-causes-all-numbers-to-be-printed-in-scientif?rq=1
         np.set_printoptions(formatter={'float': "{:6.5g}".format})
-
-        # Add results to dictionary
-        freq_vec.update({files_in_dir[key][f]: count})
+        # filtering produced feature vectors
+        all_zeros = not np.any(count)
+        if not all_zeros:
+            # Add results to dictionary
+            freq_vec.update({files_in_dir[key][f]: count})
 
         # Reset lists to empty
         Binder_methods = []
@@ -143,9 +149,13 @@ for key in files_in_dir:
 
 print(result)
 print ("\nList of Distinct Methods found: ")
-print (dis)
+print (len(dis))
+
+print(time.time() - start)
 
 
-# to access results from other classes
+# to access results from other classes + Filtering
 def getFreqVec():
-    return result
+    filtered_res = result.copy()
+    filtered_res = dict([(k, v) for k, v in filtered_res.items() if len(v) > 5])
+    return filtered_res
