@@ -135,9 +135,12 @@ for key in files_in_dir:
                     count[j] += 1
         # Used from https://stackoverflow.com/questions/30024342/converting-dataframe-to-numpy-array-causes-all-numbers-to-be-printed-in-scientif?rq=1
         np.set_printoptions(formatter={'float': "{:6.5g}".format})
+
         # filtering produced feature vectors
         all_zeros = not np.any(count)
-        if not all_zeros:
+        num_of_zeros = np.count_nonzero(count == 0)
+        length_req = len(dis)
+        if not all_zeros and num_of_zeros < length_req-6:
             # Add results to dictionary
             freq_vec.update({files_in_dir[key][f]: count})
 
@@ -156,6 +159,4 @@ print(time.time() - start)
 
 # to access results from other classes + Filtering
 def getFreqVec():
-    filtered_res = result.copy()
-    filtered_res = dict([(k, v) for k, v in filtered_res.items() if len(v) > 5])
-    return filtered_res
+    return result
