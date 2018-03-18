@@ -10,7 +10,6 @@ import time
 from pathlib import Path
 
 
-
 # Initialising Variables
 files_in_dir = []
 system_calls = []
@@ -149,7 +148,10 @@ for key in files_in_dir:
 
         # filtering produced feature vectors
         all_zeros = not np.any(count)
-        if not all_zeros:
+        num_of_zeros = np.count_nonzero(count == 0)
+        length_req = len(dis)
+        if not all_zeros and num_of_zeros < length_req-13:
+            
             # Add results to dictionary
             freq_vec.update({files_in_dir[key][f]: count})
 
@@ -167,6 +169,4 @@ print(time.time() - start)
 
 # to access results from other classes + filtering
 def getBiGramVec():
-    filtered_res = result.copy()
-    filtered_res = dict([(k, v) for k, v in filtered_res.items() if len(v) > 6])
-    return filtered_res
+    return result
