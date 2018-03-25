@@ -3,11 +3,12 @@ Created on 28 Nov 2017
 
 @author: Ghadah
 
+** OLD VERSION **
 This class aim  to Extract features out of a specified directory,in this case,
 a Malware family. By Iterating through samples in each malware family, and
 extracting 'BINDER' SYSCALL' and 'INTENT' Saving those calls to list
 and forming a frequency-vector that represents each sample in the directory,
-it stores the number of times a method occured in a certain sample.
+it stores the number of times a method occurred in a certain sample.
 
 note: value of directory_in_str, represents where the malware family is located
 '''
@@ -21,7 +22,7 @@ Binder_methods = []
 files_in_dir = []
 system_calls = []
 frequency_vec = {}
-directory_in_str = '../../samples/ADRD_genome_stimulated'
+directory_in_str = '../../../samples'
 
 
 def distinct_Methods(files):
@@ -36,11 +37,13 @@ def distinct_Methods(files):
         for i in range(0, n):
             value = json_data[i]["low"][0]["type"]
             # check if value equal to binder and not in the list
-            if(value == 'BINDER' and json_data[i]["low"][0]["method_name"] not in dis_meth):
+            if(value == 'BINDER' and json_data[i]["low"][0]["method_name"]
+               not in dis_meth):
                 dis_meth.append(json_data[i]["low"][0]["method_name"])
 
             # check if value equal to intent and not in the list
-            elif (value == 'INTENT' and json_data[i]["low"][0]["intent"] not in dis_meth):
+            elif (value == 'INTENT' and json_data[i]["low"][0]["intent"]
+                  not in dis_meth):
                 dis_meth.append(json_data[i]["low"][0]["intent"])
 
             # check if value equal to binder and not in the list
@@ -107,8 +110,8 @@ for f in range(0, len(files_in_dir)):
     # Reset lists to empty
     Binder_methods = []
     system_calls = []
-print (frequency_vec)
 
+print (frequency_vec)
 print ("\nList of Distinct Methods found: ")
 print (dis)
 
