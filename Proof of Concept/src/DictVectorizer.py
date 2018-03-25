@@ -2,15 +2,20 @@
 Created on 7 Mar 2018
 
 @author: Ghadah
-'''
 
-from sklearn.feature_extraction.text import CountVectorizer
+This class uses Scikit-learn library for feature extraction, it produces a
+pandas data frame of each sample information, along with its label.
+
+Note: use on a small dataset.
+
+'''
 import json
 import os
-import numpy as np
+import pandas as pd
 from pathlib import Path
 from sklearn.preprocessing import LabelEncoder
-import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+
 
 # Initialising Variables
 Binder_methods = []
@@ -21,7 +26,7 @@ combined = []
 method_list = []
 labels_list = []
 
-directory_in_str = '../../../samples'
+directory_in_str = '../../samples'
 
 
 # returns .json files found in directory
@@ -57,11 +62,14 @@ def extractFeature(json_data):
         system_calls.append(json_data[i]["class"])
         if('subclass' in json_data[i].keys()):
             system_calls.append(json_data[i]["subclass"])
+
         if(json_data[i]["low"][0]["type"] == 'BINDER'):
             Binder_methods.append(json_data[i]["low"][0]["method_name"])
+
         # retrieving Intent Calls
         elif (json_data[i]["low"][0]["type"] == 'INTENT'):
             Binder_methods.append(json_data[i]["low"][0]["intent"])
+
         # retrieving System Calls
         elif(json_data[i]["low"][0]["type"] == 'SYSCALL'):
             for j in range(0, len(json_data[i]["low"])):
@@ -83,29 +91,27 @@ for key in files_in_dir:
         json_data = readJson(files_in_dir[key][f])
         extractFeature(json_data)
 
-        # Sanitise system calls
+        # sanitise system calls
         for s in range(0, len(system_calls)):
             system_calls[s] = system_calls[s].replace(" ", "_")
 
         combined = Binder_methods + system_calls
-        # print(files_in_dir[key][f])
-
         labels_list.append(key)
+
         # remove dots from all entries (sanitise)
         for i in range(0, len(combined)):
             combined[i] = combined[i].replace(".", "_")
 
         method_list.append((' '.join(combined[:])))
-        # whole.append(list((key, vals)))
-
         combined = []
 
 
 X = vectorizer.fit_transform(method_list)
-print(vectorizer.get_feature_names())
+print('List of Distinct Methods: \n', vectorizer.get_feature_names())
 
 y = labelEnc.fit_transform(labels_list)
 
 samples = pd.DataFrame(X.toarray())
 samples['labels'] = y
-print(samples)
+
+print('\n\nFeature Set: \n', samples)
