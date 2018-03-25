@@ -4,11 +4,13 @@ Created on 18 Feb 2018
 @author: Ghadah
 
 This class aim  to Extract features out of a specified directory,in this case,
-a Malware family. By Iterating through samples in each malware family, and
-extracting 'BINDER' SYSCALL' and 'INTENT' Saving those calls to list
-and forming a frequency-vector that represents each sample in the directory,
-it stores the number of times a method occured in a certain sample.
-note: value of directory_in_str, represents where the malware family is located
+a Malware family. By Iterating through samples in each Malware family, and
+extracting 'BINDER','SYSCALL','INTENT', and high-level class information
+Saving those calls to list and forming a frequency-vector that represents
+each sample in the directory, it stores the number of times a method occurred
+in a certain sample.
+
+note: value of directory_in_str, represents where the Malware family is located
 '''
 import json
 import os
@@ -25,6 +27,7 @@ freq_vec = {}
 directory_in_str = '../../../samples'
 
 
+# returns a list of all the distinct methods found in data set
 def distinct_Methods(dircFiles):
     dis_meth = []
     for key in dircFiles:
@@ -41,14 +44,14 @@ def distinct_Methods(dircFiles):
                 class_value = json_data[i]["class"]
                 binder_value = json_data[i]["low"][0]["type"]
 
-                # Add values of system calls
+                # add values of system calls
                 dis_meth.append(class_value)
 
                 if('subclass' in json_data[i].keys()):
                     subclass_value = json_data[i]["subclass"]
                     dis_meth.append(subclass_value)
 
-                # Add values of Binder transactions
+                # add values of Binder transactions
                 # check if value equal to binder and not in the list
                 if(binder_value == 'BINDER'):
                     dis_meth.append(json_data[i]["low"][0]["method_name"])
@@ -73,13 +76,16 @@ def iterateThroughDir(directory):
     families = {}
     files = []
     sub_directories = os.listdir(directory)
+
     for dirc in sub_directories:
         sub = directory + '/' + dirc
         pathlist = Path(sub).glob('**/*.json')
+
         for path in pathlist:
             files.append(str(path))
         families.update({dirc: files})
         files = []
+
     return families
 
 
@@ -89,37 +95,40 @@ def readJson(f):
         # takes an actual object as parameter
         data = json.load(data_file)
 
-    # using some of data
     json_data = data["behaviors"]["dynamic"]["host"]
     return json_data
 
 
-# loop through data, and extract the required methods
+# loop through data, and extract all methods
 def extractFeature(json_data):
     n = len(json_data)
     for i in range(0, n):
+        # appending class and subclass information
         system_calls.append(json_data[i]["class"])
         if('subclass' in json_data[i].keys()):
             system_calls.append(json_data[i]["subclass"])
+
         if(json_data[i]["low"][0]["type"] == 'BINDER'):
             Binder_methods.append(json_data[i]["low"][0]["method_name"])
+
         # retrieving Intent Calls
         elif (json_data[i]["low"][0]["type"] == 'INTENT'):
             Binder_methods.append(json_data[i]["low"][0]["intent"])
+
         # retrieving System Calls
         elif(json_data[i]["low"][0]["type"] == 'SYSCALL'):
             for j in range(0, len(json_data[i]["low"])):
                 Binder_methods.append(json_data[i]["low"][j]['sysname'])
 
 
-# Compute the time required
-start = time.time()
+# start timer
+start_time = time.time()
 
-# list Files in directory
+# list of files in directory
 files_in_dir = iterateThroughDir(directory_in_str)
 result = files_in_dir.copy()
 
-# Get the names of different methods in all directories
+# getting the names of different methods in all directories
 dis = distinct_Methods(files_in_dir)
 
 for key in files_in_dir:
@@ -127,24 +136,28 @@ for key in files_in_dir:
         json_data = readJson(files_in_dir[key][f])
         extractFeature(json_data)
         combined = Binder_methods + system_calls
+
         # array of zeros to determine size of vector
         count = np.zeros(len(dis))
         for i in range(0, len(combined)):
             for j in range(0, len(dis)):
                 if(combined[i] == dis[j]):
                     count[j] += 1
-        # Used from https://stackoverflow.com/questions/30024342/converting-dataframe-to-numpy-array-causes-all-numbers-to-be-printed-in-scientif?rq=1
+
+        # this line used from
+        # https://stackoverflow.com/questions/30024342/converting-dataframe-to-numpy-array-causes-all-numbers-to-be-printed-in-scientif?rq=1
         np.set_printoptions(formatter={'float': "{:6.5g}".format})
 
-        # filtering produced feature vectors
+        # filtering feature vectors
         all_zeros = not np.any(count)
         num_of_zeros = np.count_nonzero(count == 0)
         length_req = len(dis)
         if not all_zeros and num_of_zeros < length_req-6:
-            # Add results to dictionary
+
+            # add results to dictionary
             freq_vec.update({files_in_dir[key][f]: count})
 
-        # Reset lists to empty
+        # reset lists to empty
         Binder_methods = []
         system_calls = []
     result[key] = freq_vec
@@ -152,11 +165,13 @@ for key in files_in_dir:
 
 print(result)
 print ("\nList of Distinct Methods found: ")
-print (len(dis))
+print (dis)
 
-print(time.time() - start)
+# Print time taken
+print('\nTime taken to produce Frequency Vectors: %.2f s' %
+      (time.time() - start_time))
 
 
-# to access results from other classes + Filtering
+# To get results from other classes
 def getFreqVec():
     return result
