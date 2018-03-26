@@ -1,37 +1,59 @@
 '''
-Created on 18 Feb 2018
+Created on 13 Feb 2018
 
 @author: Ghadah
-'''
 
+By computing distance to the Kth nearest neighbour, we can find the range of
+possible values, for DBSCAN epsilon parameter. This class uses values produced
+by PCA_Freq and PCA_BiGram, to plot the graphs.
+
+Note: we used this class with both frequency vectors and Bi-grams
+'''
 from sklearn.neighbors import NearestNeighbors
 from matplotlib import pyplot as plt
-from DBSCAN import PCA as pca
-
-# Represent data as a matrix
-X = pca.returnPCA()
-X = X[:, 0:2]
-
-# Compute value of neighbours
-n = (2 * X.shape[1]) - 1
-
-# Get Nearest Neighbour
-nbrs = NearestNeighbors(n_neighbors=n, algorithm='ball_tree').fit(X)
-distances, indices = nbrs.kneighbors(X)
-
-distances.sort(0)
-print(distances.shape)
-desc_distances = distances[::-1]
+import PCA_BiGram
+import PCA_Freq
 
 
-# Plot the KNN distance Graph
-for i in range(0, len(desc_distances)):
-    # plt.scatter(i, desc_distances[i][n-1])
-    plt.plot(desc_distances[i][n-1], i, 'o', 'blue',  alpha=0.5, ms=6)
+# get PCA data
+pca_bi = PCA_BiGram.returnPCA()
+pca_freq = PCA_Freq.returnPCA()
 
-plt.suptitle("K-distance graph")
+# number of neighbours
+n = 8
+
+# compute Nearest Neighbour (Bi-Grams)
+nbrs = NearestNeighbors(n_neighbors=n, algorithm='ball_tree').fit(pca_bi)
+distances, indices = nbrs.kneighbors(pca_bi)
+
+# compute Nearest Neighbour (Frequency)
+nbrs2 = NearestNeighbors(n_neighbors=n, algorithm='ball_tree').fit(pca_freq)
+freq_distances, freq_indices = nbrs2.kneighbors(pca_freq)
+
+
+# sort distances
+desc_distances = sorted(distances[:, n-1], reverse=True)
+freq_desc_distances = sorted(freq_distances[:, n-1], reverse=True)
+
+# plot data
+with plt.style.context('seaborn-whitegrid'):
+    plt.subplot(211)
+    plt.plot(list(range(0, len(desc_distances))), desc_distances, label='KNN')
+plt.title("K-distance graph (Bi-Grams)")
 plt.xlabel("Points in Descending Order (Eps value)")
 plt.ylabel(" KNN distance")
 plt.legend()
 plt.tight_layout()
+
+# second plot
+with plt.style.context('seaborn-whitegrid'):
+    plt.subplot(212)
+    plt.plot(list(range(0, len(freq_desc_distances))), freq_desc_distances,
+             label='KNN', c='r')
+plt.title("K-distance graph (Frequency)")
+plt.xlabel("Points in Descending Order (Eps value)")
+plt.ylabel(" KNN distance")
+plt.legend()
+plt.tight_layout()
+
 plt.show()
