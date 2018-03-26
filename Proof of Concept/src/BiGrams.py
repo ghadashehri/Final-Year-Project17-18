@@ -1,26 +1,24 @@
 '''
-Created on 18 Feb 2018
+Created on 8 Mar 2018
 
 @author: Ghadah
 
-This class aim  to Extract features out of a specified directory,in this case,
-a Malware family. By Iterating through samples in each Malware family, and
-extracting 'BINDER','SYSCALL','INTENT', and high-level class information
-Saving those calls to list and forming a frequency-vector that represents
-each sample in the directory, it stores the number of times a method occurred
-in a certain sample.
+This class aim to extract important features. It inspects all the samples
+in our data set, and produce feature vectors. It looks for binder transactions
+and system calls made in each sample, and records the number of times each
+method occurred. Also, this class provide information on the sequence of method
+invocations.
 
 note: value of directory_in_str, represents where the Malware family is located
 '''
 import json
 import os
-import time
 import numpy as np
+import time
 from pathlib import Path
 
 
 # Initialising Variables
-Binder_methods = []
 files_in_dir = []
 system_calls = []
 freq_vec = {}
@@ -64,11 +62,12 @@ def distinct_Methods(dircFiles):
                 if(binder_value == 'SYSCALL'):
                     for j in range(0, len(json_data[i]["low"])):
                         if(json_data[i]["low"][j]['sysname']):
-                            # print(json_data[i]["low"][j]['sysname'])
                             dis_meth.append(json_data[i]["low"][j]['sysname'])
 
     unique_list = list(set(dis_meth))
-    return unique_list
+    dis_bi = list(set(get_BiGram(dis_meth)))
+
+    return unique_list + dis_bi
 
 
 # returns .json files found in directory
@@ -85,7 +84,6 @@ def iterateThroughDir(directory):
             files.append(str(path))
         families.update({dirc: files})
         files = []
-
     return families
 
 
@@ -108,17 +106,29 @@ def extractFeature(json_data):
         if('subclass' in json_data[i].keys()):
             system_calls.append(json_data[i]["subclass"])
 
+        # retrieving Binder Calls
         if(json_data[i]["low"][0]["type"] == 'BINDER'):
-            Binder_methods.append(json_data[i]["low"][0]["method_name"])
+            system_calls.append(json_data[i]["low"][0]["method_name"])
 
         # retrieving Intent Calls
         elif (json_data[i]["low"][0]["type"] == 'INTENT'):
-            Binder_methods.append(json_data[i]["low"][0]["intent"])
+            system_calls.append(json_data[i]["low"][0]["intent"])
 
         # retrieving System Calls
         elif(json_data[i]["low"][0]["type"] == 'SYSCALL'):
             for j in range(0, len(json_data[i]["low"])):
-                Binder_methods.append(json_data[i]["low"][j]['sysname'])
+                system_calls.append(json_data[i]["low"][j]['sysname'])
+
+
+# returns a 2-gram vector
+def get_BiGram(methods):
+    biGram = []
+    j = 0
+    for i in range(0, len(methods)-1):
+        j = i+1
+        biGram.append(methods[i] + ' ' + methods[j])
+
+    return biGram
 
 
 # start timer
@@ -133,15 +143,18 @@ dis = distinct_Methods(files_in_dir)
 
 for key in files_in_dir:
     for f in range(0, len(files_in_dir[key])):
+
         json_data = readJson(files_in_dir[key][f])
         extractFeature(json_data)
-        combined = Binder_methods + system_calls
+        combined = system_calls
+        bi_gram = get_BiGram(combined)
+        all_values = combined + bi_gram
 
         # array of zeros to determine size of vector
         count = np.zeros(len(dis))
-        for i in range(0, len(combined)):
+        for i in range(0, len(all_values)):
             for j in range(0, len(dis)):
-                if(combined[i] == dis[j]):
+                if(all_values[i] == dis[j]):
                     count[j] += 1
 
         # this line used from
@@ -152,26 +165,24 @@ for key in files_in_dir:
         all_zeros = not np.any(count)
         num_of_zeros = np.count_nonzero(count == 0)
         length_req = len(dis)
-        if not all_zeros and num_of_zeros < length_req-6:
+        if not all_zeros and num_of_zeros < length_req-13:
 
             # add results to dictionary
             freq_vec.update({files_in_dir[key][f]: count})
 
         # reset lists to empty
-        Binder_methods = []
         system_calls = []
     result[key] = freq_vec
     freq_vec = {}
 
 print(result)
-print ("\nList of Distinct Methods found: ")
+print ("\n List of Distinct Methods found: ")
 print (dis)
 
 # Print time taken
-print('\nTime taken to produce Frequency Vectors: %.2f s' %
-      (time.time() - start_time))
+print('\n Time taken to produce Bi-grams: %.2f s' % (time.time() - start_time))
 
 
 # To get results from other classes
-def getFreqVec():
+def getBiGramVec():
     return result
