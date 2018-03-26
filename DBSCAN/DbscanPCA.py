@@ -1,76 +1,98 @@
 '''
-Created on 18 Feb 2018
+Created on 23 Mar 2018
 
 @author: Ghadah
+
+In this class we use values from  both PCA_BiGram and PCA_Freq,
+to represents our feature set and after each computation, we evaluate
+the quality of our algorithm on both models.
+
+Note: parameters are already assigned
 '''
 from sklearn.cluster import DBSCAN
-from matplotlib import pyplot as plt
-from DBSCAN import PCA as pca
-import numpy as np
+from sklearn import metrics
+import PCA_BiGram
+import PCA_Freq
+import time
 
 
-PCA_matrix = pca.returnPCA()
+bi_data = PCA_BiGram.returnPCA()
+freq_data = PCA_Freq.returnPCA()
 
-# Estimate the value of MinPts as double number of dimensions
-minPts = 2*len(PCA_matrix[0])
+bi_labels = PCA_BiGram.returnLabels()
+freq_labels = PCA_Freq.returnLabels()
 
-# Compute DBSCAN
-dbscn = DBSCAN(eps=.26, min_samples=minPts).fit(PCA_matrix)
+# compute time
+start_time = time.time()
 
+# estimate the value of MinPts
+minPts = 8
 
+# compute DBSCAN
+dbscn = DBSCAN(eps=6.63, min_samples=minPts).fit(bi_data)
 labels = dbscn.labels_
-core_samples = np.zeros_like(labels, dtype=bool)
-core_samples[dbscn.core_sample_indices_] = True
 
+freq_dbscn = DBSCAN(eps=1.3, min_samples=minPts).fit(freq_data)
+fq_labels = freq_dbscn.labels_
 
-# Check Accuracy of Algorithm
-def get_accuracy(labels):
-    acc = 0
-    data_labels = pca.returnLabels()
-
-    for i in range(0, len(labels)):
-        # print("     ", data_labels[i], labels[i])
-        if data_labels[i] == labels[i]:
-            acc = acc + 1
-    n = len(data_labels)
-    return("DBSCAN ALGORITHM ACCURACY ", (acc/n)*100)
-
-
-accuracy = get_accuracy(labels)
-print('\n\n')
-print(accuracy)
-
-
-# PLOTTTINNNNGGGG DDDDAAATTTTAAAAA #####+++++++++++++++++###############
-
-# Display sample data
-for i in range(0, PCA_matrix.shape[0]):
-    plt.plot(PCA_matrix[i, :])
-plt.xlabel("X-Axis")
-plt.ylabel("Y-Axis")
-plt.title("Android Sample Data ")
-plt.show()
-
-# Number of clusters in labels
+# number of clusters in first model labels
 n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-unique_labels = np.unique(labels)
-colors = plt.cm.Spectral(np.linspace(0, 1, len(unique_labels)))
 
-for (label, color) in zip(unique_labels, colors):
-    if label == -1:
-        # Black used for noise.
-        color = [0, 0, 0, 1]
-    class_member_mask = (labels == label)
-    xy = PCA_matrix[class_member_mask & core_samples]
-    plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(color),
-             markeredgecolor='k', markersize=10)
+# number of clusters in second model labels
+freq_n_clusters = len(set(fq_labels)) - (1 if -1 in fq_labels else 0)
 
-    xy2 = PCA_matrix[class_member_mask & ~core_samples]
-    plt.plot(xy2[:, 0], xy2[:, 1], 'o', markerfacecolor=tuple(color),
-             markeredgecolor='k', markersize=6)
 
-plt.suptitle("DBSCAN Algorithm")
-plt.title('Estimated number of clusters: %d' % n_clusters_)
-plt.xlabel("X (scaled)")
-plt.ylabel("Y (scaled)")
-plt.show()
+# evaluation of first dbscan model (PCA_BiGram)
+print('\nDBSCAN Results for Bi-Grams 81 Components: \n')
+msg = ('Clustered {:,} points to {:,} clusters, for {:.1f}% compression in '
+       '{:,.2f} seconds')
+
+print(msg.format(len(bi_data), n_clusters_,
+                 100*(1 - float(n_clusters_) / len(bi_data)),
+                 time.time()-start_time))
+
+# Print values of cluster quality measures
+print('Accuracy:', metrics.accuracy_score(bi_labels, labels))
+print("Adjusted Rand Index: %0.3f"
+      % metrics.adjusted_rand_score(bi_labels, labels))
+print('Silhouette coefficient: {:0.03f}'.format(metrics.silhouette_score(
+    bi_data, labels)))
+print('\n')
+print('Precision: ', metrics.precision_score(bi_labels, labels,
+                                             average='micro'))
+print('Recall: ', metrics.recall_score(bi_labels, labels, average='micro'))
+print('F-Score: ', metrics.f1_score(bi_labels, labels, average='micro'))
+print('\n')
+
+print("Homogeneity: %0.3f" % metrics.homogeneity_score(bi_labels, labels))
+print("Completeness: %0.3f" % metrics.completeness_score(bi_labels, labels))
+print("V-measure: %0.3f" % metrics.v_measure_score(bi_labels, labels))
+# print ('\n Confusion Matrix:\n', confusion_matrix(Y, labels))
+
+
+# evaluation of first dbscan model (PCA_Freq)
+print('----------------------------------------------------')
+print('\n\nDBSCAN Results for 25 Frequency Components: \n')
+msg = ('Clustered {:,} points to {:,} clusters, for {:.1f}% compression in '
+       '{:,.2f} seconds')
+
+print(msg.format(len(freq_data), freq_n_clusters,
+                 100*(1 - float(freq_n_clusters) / len(freq_data)),
+                 time.time()-start_time))
+print('Accuracy:', metrics.accuracy_score(freq_labels, fq_labels))
+print("Adjusted Rand Index: %0.3f"
+      % metrics.adjusted_rand_score(freq_labels, fq_labels))
+print('Silhouette coefficient: {:0.03f}'.format(metrics.silhouette_score(
+    freq_data, fq_labels)))
+print('\n')
+print('Precision: ', metrics.precision_score(freq_labels, fq_labels,
+                                             average='micro'))
+print('Recall: ', metrics.recall_score(freq_labels, fq_labels,
+                                       average='micro'))
+print('F-Score: ', metrics.f1_score(freq_labels, fq_labels, average='micro'))
+print('\n')
+print("Homogeneity: %0.3f" % metrics.homogeneity_score(freq_labels, fq_labels))
+print("Completeness: %0.3f" % metrics.completeness_score(freq_labels,
+                                                         fq_labels))
+print("V-measure: %0.3f" % metrics.v_measure_score(freq_labels, fq_labels))
+# print ('\n Confusion Matrix:\n', confusion_matrix(Y, labels))
