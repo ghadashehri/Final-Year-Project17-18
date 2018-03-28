@@ -111,7 +111,7 @@ with plt.style.context('seaborn-whitegrid'):
     plt.plot(eps, [x[1] for x in prf], label='Recall', ls='--')
     plt.plot(eps, [x[2] for x in prf], label='F-Measure', ls=':')
 plt.title('Precision, Recall, F-measure Graph')
-plt.xlabel('Number of Clusters')
+plt.xlabel('Epsilon Value')
 plt.ylabel('Metric Score')
 plt.xlim()
 plt.ylim(0, 1)
